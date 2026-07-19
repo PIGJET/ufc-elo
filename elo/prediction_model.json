@@ -1,0 +1,64 @@
+{
+  "coefficients": {
+    "glicko_logit": 0.36704524605300287,
+    "reach_delta": 0.007994102077975069,
+    "reach_missing": 0.34874549928060966,
+    "height_delta": 0.018391193573945728,
+    "age_delta": -0.08066183451144854,
+    "over35_delta": -0.037026696587423934,
+    "layoff_delta": -0.1515728942160801,
+    "form_delta": 0.0054153030878743005,
+    "southpaw_orthodox": 0.11631129291678316,
+    "style_wr_vs_str": 0.11710427240676552,
+    "style_gr_vs_str": -0.08766218062313727,
+    "style_gr_vs_wr": -0.05712319474063288,
+    "rematch": 0.008960973094747223,
+    "prior_winner": 0.056910518179480285,
+    "weight_gap": 0.185
+  },
+  "intercept": 0.23829072021058675,
+  "feature_order": [
+    "glicko_logit",
+    "reach_delta",
+    "reach_missing",
+    "height_delta",
+    "age_delta",
+    "over35_delta",
+    "layoff_delta",
+    "form_delta",
+    "southpaw_orthodox",
+    "style_wr_vs_str",
+    "style_gr_vs_str",
+    "style_gr_vs_wr",
+    "rematch",
+    "prior_winner",
+    "weight_gap"
+  ],
+  "impute": {
+    "reach_in": 71.54344328238133,
+    "height_in": 70.14362220058423,
+    "age": 29.0
+  },
+  "offsets": {
+    "Bantamweight": 0.0,
+    "Featherweight": 0.0,
+    "Heavyweight": 106.33,
+    "Light Heavyweight": 0.0,
+    "Lightweight": 0.0,
+    "Middleweight": 0.0,
+    "Open Weight": 0.0,
+    "Welterweight": 0.0,
+    "Women's Bantamweight": 0.0,
+    "Women's Featherweight": 0.0,
+    "Women's Flyweight": 0.0
+  },
+  "metadata": {
+    "generated_at": "2026-07-18T19:32:26+00:00",
+    "n_train_fights": 8555,
+    "model": "logistic regression with intercept (corner-aware); predict_fight symmetrizes over corner for order-invariance",
+    "recency_half_life_years": 3.0,
+    "glicko_temperature": 0.36704524605300287,
+    "corner_prior_intercept": 0.23829072021058675,
+    "note": "glicko_logit coefficient is the calibration temperature (<1 => raw Glicko is over-confident); intercept is the red-corner/favourite prior; features per elo.features.FEATURE_NAMES"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "offsets": {
+    "Bantamweight": 0.0,
+    "Featherweight": 0.0,
+    "Heavyweight": 106.33,
+    "Light Heavyweight": 0.0,
+    "Lightweight": 0.0,
+    "Middleweight": 0.0,
+    "Open Weight": 0.0,
+    "Welterweight": 0.0,
+    "Women's Bantamweight": 0.0,
+    "Women's Featherweight": 0.0,
+    "Women's Flyweight": 0.0
+  },
+  "metadata": {
+    "generated_at": "2026-07-18T19:32:19+00:00",
+    "anchor_division": "Lightweight",
+    "n_crossover_fights": 79,
+    "l2_lambda": 6.0,
+    "monotonic": true,
+    "method": "regularized logistic regression on pre-fight ratings of crossover (catchweight/open-weight/cross-division) fights; Lightweight anchored to 0; isotonic (non-decreasing with weight) constraint",
+    "scale": 173.7178
+  }
+}

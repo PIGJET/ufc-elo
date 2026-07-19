@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets — never commit API keys
+.env
+
+# Re-downloadable data artifacts (see README: data/sync.py rebuilds these)
+data/cache/
+data/raw/
+
+# Node / frontend build
+web/node_modules/
+web/dist/
+
+# The SQLite DB IS committed (14 MB) so the site runs on clone.
+# If it ever grows past ~50 MB, uncomment the next line and document rebuild:
+# data/ufc.db
