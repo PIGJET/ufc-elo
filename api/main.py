@@ -11,11 +11,18 @@ restart) to reload them.
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+
+# Production: serve the built frontend (web/dist) from this same app so the
+# whole site deploys as ONE service (see render.yaml). In dev, web/dist may
+# not exist -- the Vite dev server proxies /api instead.
+WEB_DIST = Path(__file__).resolve().parent.parent / "web" / "dist"
 
 from api.routers import events, fighters, matchup, rankings
 from api.state import state
@@ -74,7 +81,20 @@ def refresh() -> dict[str, Any]:
 
 # Ensure the 422 contract (bad params) is JSON-consistent; FastAPI already
 # returns 422 for validation errors, this just normalizes the envelope.
+# Non-/api GET 404s fall back to the SPA's index.html so client-side routes
+# like /fighter/123 work on hard refresh in production.
 @app.exception_handler(404)
-async def not_found_handler(request: Request, exc) -> JSONResponse:
+async def not_found_handler(request: Request, exc):
+    index = WEB_DIST / "index.html"
+    if (request.method == "GET"
+            and not request.url.path.startswith("/api")
+            and index.exists()):
+        return FileResponse(index)
     detail = getattr(exc, "detail", "not found")
     return JSONResponse(status_code=404, content={"error": detail})
+
+
+# Mounted last so every /api route above wins; serves index.html at "/" and
+# hashed assets under /assets/*.
+if WEB_DIST.exists():
+    app.mount("/", StaticFiles(directory=WEB_DIST, html=True), name="web")

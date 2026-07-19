@@ -1,0 +1,13 @@
+# Render.com blueprint — deploys the whole site as one free web service:
+# FastAPI serves both the /api endpoints and the built React frontend.
+# The committed data/ufc.db ships with the deploy (the API only reads it).
+services:
+  - type: web
+    name: ufc-elo
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && cd web && npm ci && npm run build
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9

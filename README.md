@@ -125,6 +125,22 @@ win/loss rating previews), **Matchups** (any-two-fighters picker with a ranked
 factor breakdown), and fighter profiles (rating ± RD, stat row, Elo-history
 chart, fight history). `npm run build` outputs `web/dist`.
 
+## Deploying to the internet
+
+The whole site deploys as **one service**: FastAPI serves the `/api` routes and
+the built React app (`web/dist`), and the committed `data/ufc.db` ships with
+the deploy. `render.yaml` is a ready-made [Render](https://render.com)
+blueprint (free tier):
+
+1. Sign in to render.com with GitHub.
+2. New → **Blueprint** → pick this repo → Apply.
+3. Done — Render builds (`pip install` + `npm run build`) and serves at
+   `https://ufc-elo.onrender.com` (or similar).
+
+Notes: the free tier sleeps after ~15 min idle (first hit takes ~30s to wake);
+to refresh data on the live site, run the weekly routine below locally, commit
+the updated `data/ufc.db`, and push — Render redeploys automatically.
+
 ## Weekly refresh routine
 
 ```powershell
