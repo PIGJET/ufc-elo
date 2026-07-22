@@ -3,7 +3,7 @@
 A full-stack UFC analytics site: a Glicko-2-based rating ("Elo") for every UFC
 fighter in history, division rankings, fighter profiles with rating-history
 charts, upcoming events with predictions and betting odds, and a head-to-head
-matchup predictor for any two fighters — styled after UFC.com.
+matchup predictor for any two fighters — styled after UFC.com. 
 
 ## Quickstart
 
