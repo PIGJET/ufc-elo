@@ -15,19 +15,32 @@ import LastFightCard from '../components/LastFightCard'
 
 export default function FighterProfilePage() {
   const { id } = useParams<{ id: string }>()
-  const [data, setData] = useState<FighterProfile | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [historyOpen, setHistoryOpen] = useState(false)
+  const [result, setResult] = useState<{
+    id: string
+    data?: FighterProfile
+    error?: string
+  } | null>(null)
+  const [historyOpenFor, setHistoryOpenFor] = useState<string | null>(null)
 
   useEffect(() => {
-    setData(null)
-    setError(null)
-    setHistoryOpen(false)
     if (!id) return
+    let activeRequest = true
     getFighter(id)
-      .then(setData)
-      .catch((e) => setError(String(e)))
+      .then((data) => {
+        if (activeRequest) setResult({ id, data })
+      })
+      .catch((e) => {
+        if (activeRequest) setResult({ id, error: String(e) })
+      })
+    return () => {
+      activeRequest = false
+    }
   }, [id])
+
+  const currentResult = result && result.id === id ? result : null
+  const data = currentResult?.data
+  const error = currentResult?.error
+  const historyOpen = historyOpenFor === id
 
   if (error) return <div className="error-box">Failed to load fighter: {error}</div>
   if (!data) return <div className="loading">Loading fighter…</div>
@@ -92,7 +105,9 @@ export default function FighterProfilePage() {
         <LastFightCard
           lastFight={data.last_fight}
           fighterName={fighter.name}
-          onToggleHistory={() => setHistoryOpen((o) => !o)}
+          onToggleHistory={() =>
+            setHistoryOpenFor((current) => (current === id ? null : (id ?? null)))
+          }
           historyOpen={historyOpen}
         />
       </div>

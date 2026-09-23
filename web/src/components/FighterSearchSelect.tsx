@@ -43,21 +43,27 @@ export default function FighterSearchSelect({
   useEffect(() => {
     const q = query.trim()
     if (q.length < 1 || (selected && q === selected.name)) {
-      setResults([])
-      setLoading(false)
       return
     }
-    setLoading(true)
+    let activeRequest = true
     const t = setTimeout(() => {
       searchFighters(q)
         .then((r) => {
+          if (!activeRequest) return
           setResults(r.results)
           setActive(0)
         })
-        .catch(() => setResults([]))
-        .finally(() => setLoading(false))
+        .catch(() => {
+          if (activeRequest) setResults([])
+        })
+        .finally(() => {
+          if (activeRequest) setLoading(false)
+        })
     }, 200)
-    return () => clearTimeout(t)
+    return () => {
+      activeRequest = false
+      clearTimeout(t)
+    }
   }, [query, selected])
 
   // close on outside click
@@ -81,6 +87,8 @@ export default function FighterSearchSelect({
   function pick(f: SearchResult) {
     onSelect(f)
     setQuery(f.name)
+    setResults([])
+    setLoading(false)
     setOpen(false)
   }
 
@@ -121,7 +129,10 @@ export default function FighterSearchSelect({
           showList && results.length > 0 ? optionId(active) : undefined
         }
         onChange={(e) => {
-          setQuery(e.target.value)
+          const nextQuery = e.target.value
+          setQuery(nextQuery)
+          if (!nextQuery.trim()) setResults([])
+          setLoading(Boolean(nextQuery.trim()))
           setOpen(true)
           if (selected) onSelect(null)
         }}

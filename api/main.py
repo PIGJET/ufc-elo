@@ -10,11 +10,13 @@ restart) to reload them.
 """
 from __future__ import annotations
 
+import hmac
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -68,9 +70,19 @@ def health() -> dict[str, Any]:
     }
 
 
-@app.post("/api/refresh", tags=["meta"])
-def refresh() -> dict[str, Any]:
-    """Rebuild every in-memory cache from the current ``ufc.db`` (see module doc)."""
+@app.post("/api/refresh", tags=["meta"], include_in_schema=False)
+def refresh(x_refresh_token: str | None = Header(default=None)) -> dict[str, Any]:
+    """Rebuild caches when the caller presents the configured refresh token.
+
+    The route is disabled unless ``UFC_ELO_REFRESH_TOKEN`` is set. Keeping the
+    maintenance endpoint unavailable by default prevents public deployments
+    from exposing an unauthenticated, CPU-intensive cache rebuild.
+    """
+    configured = os.environ.get("UFC_ELO_REFRESH_TOKEN")
+    if not configured:
+        raise HTTPException(status_code=404, detail="not found")
+    if not x_refresh_token or not hmac.compare_digest(x_refresh_token, configured):
+        raise HTTPException(status_code=401, detail="invalid refresh token")
     state.load()
     return {
         "status": "refreshed",

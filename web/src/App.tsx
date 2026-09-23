@@ -1,20 +1,24 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import TopNav from './components/TopNav'
-import RankingsPage from './pages/RankingsPage'
-import EventsPage from './pages/EventsPage'
-import MatchupsPage from './pages/MatchupsPage'
-import FighterProfilePage from './pages/FighterProfilePage'
+
+const RankingsPage = lazy(() => import('./pages/RankingsPage'))
+const EventsPage = lazy(() => import('./pages/EventsPage'))
+const MatchupsPage = lazy(() => import('./pages/MatchupsPage'))
+const FighterProfilePage = lazy(() => import('./pages/FighterProfilePage'))
 
 export default function App() {
   return (
     <BrowserRouter>
       <TopNav />
-      <Routes>
-        <Route path="/" element={<RankingsPage />} />
-        <Route path="/events" element={<EventsPage />} />
-        <Route path="/matchups" element={<MatchupsPage />} />
-        <Route path="/fighter/:id" element={<FighterProfilePage />} />
-      </Routes>
+      <Suspense fallback={<div className="loading">Loading…</div>}>
+        <Routes>
+          <Route path="/" element={<RankingsPage />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/matchups" element={<MatchupsPage />} />
+          <Route path="/fighter/:id" element={<FighterProfilePage />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   )
 }

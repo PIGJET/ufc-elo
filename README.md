@@ -9,6 +9,22 @@
 
 ![UFC Elo rankings dashboard](docs/demo.png)
 
+## Results
+
+The prediction layer was evaluated out of sample on **6,419 fights from 2013
+onward**. For each calendar year, the model was refit using only earlier fights.
+
+| Model | Log loss | Brier score | Accuracy |
+| --- | ---: | ---: | ---: |
+| Coin flip | 0.6931 | 0.2500 | 50.0% |
+| Vanilla Elo | 0.6845 | 0.2457 | 55.7% |
+| UFC Elo prediction layer | **0.6592** | **0.2332** | **60.1%** |
+
+Expected calibration error is **0.0336**. See the
+[backtest report](docs/backtest_report.md) and
+[optimization report](docs/optimization_report.md) for the methodology,
+ablations, calibration buckets, and known limitations.
+
 ## Overview
 
 UFC Elo replays the promotion's fight history through a division-aware Glicko-2 engine, then layers matchup features on top to produce calibrated win probabilities. The result is a searchable web product with rankings, fighter profiles, rating histories, upcoming events, odds, and head-to-head analysis.
@@ -66,6 +82,36 @@ npm run dev
 
 Odds enrichment is optional and requires `ODDS_API_KEY`. The checked-in SQLite database lets the application run without performing a fresh ingest.
 
-## Video walkthrough
+## Verify the release
 
-> 🎬 **Coming soon** — reserved for a tour of rankings, fighter history, and the matchup predictor.
+```powershell
+pip install -r requirements-dev.txt
+pytest -q
+
+cd web
+npm ci
+npm run lint
+npm run build
+```
+
+GitHub Actions runs the same backend and frontend checks on every pull request.
+
+## Deployment
+
+`render.yaml` builds the React client and serves it from the FastAPI process as
+one Render service. The blueprint includes a health check at `/api/health`.
+
+`POST /api/refresh` is disabled by default. To allow a trusted operator to
+rebuild in-memory caches without restarting the service, set
+`UFC_ELO_REFRESH_TOKEN` and send the same value in the `X-Refresh-Token` header.
+
+## Limitations
+
+- Betting odds are not included in the current database, so the model has not
+  yet been benchmarked against the market.
+- Cross-division predictions use a documented physical prior and are marked
+  speculative; large weight gaps are extrapolations, not directly validated.
+- Historical physical attributes are incomplete and are imputed with explicit
+  missing-data indicators.
+- The checked-in database is a reproducible snapshot, not a promise of live
+  rankings. Refresh it with `data/sync.py` before publishing time-sensitive data.

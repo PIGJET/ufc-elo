@@ -18,7 +18,9 @@ Interactive docs at `http://localhost:8000/docs`.
 On startup the app builds in-memory caches (prediction model, cross-division
 offsets, per-fighter career aggregates, search index) — ~90 ms. Because the DB
 is read-only from the API's side, these only go stale when `ufc.db` is rebuilt
-offline; call **`POST /api/refresh`** (or restart) to reload them.
+offline. Restart the process to reload them. An operator may instead configure
+`UFC_ELO_REFRESH_TOKEN` and call **`POST /api/refresh`** with that value in the
+`X-Refresh-Token` header; the route is unavailable when no token is configured.
 
 ## Conventions
 
@@ -228,10 +230,11 @@ Accuracy/share fields are `0-1` fractions (`null` when the denominator is 0);
 `sig_strikes_per_min` is landed per minute of fight time (`null` if no timed
 fights). Fight duration is reconstructed as `(round-1)*300 + time_seconds`.
 
-### `GET /api/health` · `POST /api/refresh`
+### `GET /api/health` · protected `POST /api/refresh`
 
 `health` returns `{status, caches_loaded, career_fighters_cached,
-search_index_size}`. `refresh` rebuilds the caches from the current DB.
+search_index_size}`. `refresh` rebuilds the caches from the current DB and
+requires the configured `X-Refresh-Token`.
 
 ---
 

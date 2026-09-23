@@ -17,25 +17,24 @@ export default function MatchupsPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!red || !blue) {
-      setData(null)
-      return
-    }
-    if (red.id === blue.id) {
-      setError('Pick two different fighters.')
-      setData(null)
-      return
-    }
-    setLoading(true)
-    setError(null)
+    if (!red || !blue) return
+    if (red.id === blue.id) return
+    let activeRequest = true
     getMatchup(red.id, blue.id)
-      .then(setData)
-      .catch((e) => setError(String(e)))
-      .finally(() => setLoading(false))
+      .then((matchup) => {
+        if (activeRequest) setData(matchup)
+      })
+      .catch((e) => {
+        if (activeRequest) setError(String(e))
+      })
+      .finally(() => {
+        if (activeRequest) setLoading(false)
+      })
 
     // enrich the Matchup Stats tab with bio (height/reach/age/stance)
     getFighter(red.id)
       .then((p) =>
+        activeRequest &&
         setRedBio({
           height_in: p.fighter.height_in,
           reach_in: p.fighter.reach_in,
@@ -43,9 +42,12 @@ export default function MatchupsPage() {
           stance: p.fighter.stance,
         }),
       )
-      .catch(() => setRedBio(undefined))
+      .catch(() => {
+        if (activeRequest) setRedBio(undefined)
+      })
     getFighter(blue.id)
       .then((p) =>
+        activeRequest &&
         setBlueBio({
           height_in: p.fighter.height_in,
           reach_in: p.fighter.reach_in,
@@ -53,10 +55,33 @@ export default function MatchupsPage() {
           stance: p.fighter.stance,
         }),
       )
-      .catch(() => setBlueBio(undefined))
+      .catch(() => {
+        if (activeRequest) setBlueBio(undefined)
+      })
+    return () => {
+      activeRequest = false
+    }
   }, [red, blue])
 
   const gap = data?.rating_gap?.gap
+  const selectionError =
+    red && blue && red.id === blue.id ? 'Pick two different fighters.' : null
+
+  function selectRed(fighter: SearchResult | null) {
+    setData(null)
+    setError(null)
+    setRedBio(undefined)
+    setLoading(Boolean(fighter && blue && fighter.id !== blue.id))
+    setRed(fighter)
+  }
+
+  function selectBlue(fighter: SearchResult | null) {
+    setData(null)
+    setError(null)
+    setBlueBio(undefined)
+    setLoading(Boolean(fighter && red && fighter.id !== red.id))
+    setBlue(fighter)
+  }
 
   return (
     <div className="page">
@@ -69,17 +94,19 @@ export default function MatchupsPage() {
           label="Red Corner"
           corner="red"
           selected={red}
-          onSelect={setRed}
+          onSelect={selectRed}
         />
         <FighterSearchSelect
           label="Blue Corner"
           corner="blue"
           selected={blue}
-          onSelect={setBlue}
+          onSelect={selectBlue}
         />
       </div>
 
-      {error && <div className="error-box">{error}</div>}
+      {(selectionError || error) && (
+        <div className="error-box">{selectionError || error}</div>
+      )}
       {loading && <div className="loading">Running prediction…</div>}
 
       {!red || !blue ? (
