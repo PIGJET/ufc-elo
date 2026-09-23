@@ -11,14 +11,14 @@
 
 ## Results
 
-The prediction layer was evaluated out of sample on **6,419 fights from 2013
+The prediction layer was evaluated out of sample on **6,616 fights from 2013
 onward**. For each calendar year, the model was refit using only earlier fights.
 
 | Model | Log loss | Brier score | Accuracy |
 | --- | ---: | ---: | ---: |
 | Coin flip | 0.6931 | 0.2500 | 50.0% |
 | Vanilla Elo | 0.6845 | 0.2457 | 55.7% |
-| UFC Elo prediction layer | **0.6592** | **0.2332** | **60.1%** |
+| UFC Elo prediction layer | **0.6588** | **0.2330** | **60.3%** |
 
 Expected calibration error is **0.0336**. See the
 [backtest report](docs/backtest_report.md) and

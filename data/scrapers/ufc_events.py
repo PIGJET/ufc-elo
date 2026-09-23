@@ -370,7 +370,7 @@ def sync(conn=None, *, today: date | None = None) -> dict:
     summary = {"source": WATERMARK_SOURCE, "events": 0, "fights": 0,
                "fighters_matched": 0, "fighters_created": 0,
                "created_names": [], "event_names": [], "skipped_past": 0,
-               "errors": []}
+               "stale_events_closed": 0, "errors": []}
 
     try:
         list_html = base.fetch(EVENTS_URL)
@@ -386,6 +386,16 @@ def sync(conn=None, *, today: date | None = None) -> dict:
         return summary
 
     listing = parse_events_list(list_html)
+
+    # Cards previously imported from ufc.com keep their source-specific rows.
+    # Close them once their date passes so the upcoming API never republishes
+    # an old card if the historical source reconciles it under a different ID.
+    closed = conn.execute(
+        "UPDATE events SET status = 'completed', updated_at = datetime('now') "
+        "WHERE status = 'upcoming' AND date < ?",
+        (today_iso,),
+    )
+    summary["stale_events_closed"] = closed.rowcount
 
     # Indexes for fighter reconciliation + matched/created accounting.
     norm_index: dict[str, int] = {}
@@ -432,7 +442,7 @@ def sync(conn=None, *, today: date | None = None) -> dict:
     if newest:
         base.set_watermark(conn, WATERMARK_SOURCE, newest,
                            note=f"upcoming through {newest}")
-        base.commit_with_retry(conn)
+    base.commit_with_retry(conn)
 
     if owns:
         conn.close()

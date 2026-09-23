@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from datetime import date
 
 import pytest
 from fastapi.testclient import TestClient
@@ -67,6 +68,14 @@ def test_matchup_prediction_is_order_invariant(client: TestClient) -> None:
     p_forward = forward.json()["prediction"]["prob_red"]
     p_reverse = reverse.json()["prediction"]["prob_red"]
     assert p_forward + p_reverse == pytest.approx(1.0, abs=1e-6)
+
+
+def test_upcoming_events_exclude_past_cards(client: TestClient) -> None:
+    response = client.get("/api/events/upcoming")
+    assert response.status_code == 200
+    events = response.json()["events"]
+    assert events
+    assert all(event["date"] >= date.today().isoformat() for event in events)
 
 
 def test_refresh_endpoint_is_disabled_without_secret(client: TestClient) -> None:

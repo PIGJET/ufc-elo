@@ -1,6 +1,6 @@
 # UFC Elo — Prediction Layer & Backtest Report
 
-_Generated 2026-07-18 from `data/ufc.db` (8,701 completed fights; 8,547 decisive
+_Refreshed 2026-09-23 from `data/ufc.db` (8,907 rated fights; 8,752 decisive
 red/blue bouts with a binary label). Prediction layer per `docs/PLAN.md`
 sections 4–5, built on the finished Glicko-2 rating engine (section 3). Ratings
 were **not** modified by this phase — the prediction layer reads them, it never
@@ -22,7 +22,7 @@ shipped rating config is already the best-performing once calibrated.
 
 ---
 
-## 1. Headline metrics — walk-forward, 2013+ (n = 6,419)
+## 1. Headline metrics — walk-forward, 2013+ (n = 6,616)
 
 Every fight from 2013 onward is predicted **out-of-sample**: the model is refit
 each year on fights strictly before that year (recency-weighted), then applied to
@@ -32,9 +32,9 @@ train the first fold. Vanilla Elo and raw Glicko likewise use only prior fights.
 | Model | Log-loss | Brier | Accuracy |
 |---|--:|--:|--:|
 | Coin flip | 0.6931 | 0.2500 | 0.500 |
-| Vanilla Elo (plain K=32, no multipliers) | 0.6845 | 0.2457 | 0.557 |
-| Raw Glicko expected score | 0.6956 | 0.2493 | 0.568 |
-| **Prediction layer (shipped)** | **0.6589** | **0.2331** | **0.601** |
+| Vanilla Elo (plain K=32, no multipliers) | 0.6846 | 0.2457 | 0.558 |
+| Raw Glicko expected score | 0.6955 | 0.2492 | 0.569 |
+| **Prediction layer (shipped)** | **0.6588** | **0.2330** | **0.603** |
 | Betting odds | — | — | **skipped: `odds` table is empty (no API key)** |
 
 The prediction layer beats every baseline on all three metrics: −0.034 log-loss
@@ -69,15 +69,15 @@ the rating/physical/style discrimination and still beats every baseline.
 
 | Predicted bin | n | Pred mean | Actual win rate |
 |---|--:|--:|--:|
-| 0.1–0.2 | 3 | 0.168 | 0.333 |
-| 0.2–0.3 | 54 | 0.267 | 0.259 |
-| 0.3–0.4 | 277 | 0.362 | 0.383 |
-| 0.4–0.5 | 841 | 0.459 | 0.459 |
-| 0.5–0.6 | 1809 | 0.554 | 0.502 |
-| 0.6–0.7 | 1976 | 0.649 | 0.618 |
-| 0.7–0.8 | 1129 | 0.742 | **0.719** |
-| 0.8–0.9 | 301 | 0.840 | 0.748 |
-| 0.9–1.0 | 29 | 0.920 | 0.862 |
+| 0.1–0.2 | 4 | 0.161 | 0.500 |
+| 0.2–0.3 | 63 | 0.266 | 0.302 |
+| 0.3–0.4 | 287 | 0.363 | 0.373 |
+| 0.4–0.5 | 885 | 0.459 | 0.455 |
+| 0.5–0.6 | 1839 | 0.554 | 0.505 |
+| 0.6–0.7 | 2010 | 0.648 | 0.614 |
+| 0.7–0.8 | 1184 | 0.741 | **0.722** |
+| 0.8–0.9 | 314 | 0.839 | 0.755 |
+| 0.9–1.0 | 30 | 0.920 | 0.800 |
 
 The **0.7–0.8 bin predicts 74% and observes 72%** — the calibration target is
 met. The curve is monotone and hugs the diagonal; the only real drift is mild
@@ -93,25 +93,26 @@ fights lets the intercept and temperature track the current era, cutting ECE to
 ## 3. Fitted coefficients (production model, all history, recency-weighted)
 
 `P(A wins) = sigmoid( intercept + Σ βᵢ · featureᵢ )`, features from A's
-perspective. Intercept **+0.239** = red-corner/favourite prior (only applied when
+perspective. Intercept **+0.243** = red-corner/favourite prior (only applied when
 a corner is known; cancelled by `predict_fight`'s symmetrization).
 
 | Feature | β | Plain-language reading |
 |---|--:|---|
-| `glicko_logit` | **+0.370** | Rating gap is the dominant signal, but shrunk (temperature 0.37 < 1: raw Glicko is over-confident). |
-| `age_delta` (per yr) | **−0.081** | The younger fighter is favoured; a 5-year age edge ≈ +10 pts win prob. Strongest non-rating factor. |
-| `layoff_delta` (per yr) | **−0.150** | Ring rust is real: a fighter a year longer removed loses ≈ 3.7 pts. |
-| `style_wr_vs_str` | **+0.118** | Wrestlers beat strikers — the classic stylistic edge shows up cleanly. |
-| `southpaw_orthodox` | **+0.117** | Southpaws hold an edge over orthodox opponents. |
-| `style_gr_vs_str` | −0.089 | Pure grapplers fare slightly *worse* vs. strikers (range/takedown-entry problem). |
-| `style_gr_vs_wr` | −0.056 | Grappler slightly under wrestler. |
-| `prior_winner` | +0.054 | Winning the previous meeting carries a small edge into a rematch. |
-| `over35_delta` | −0.037 | Extra decline once past 35, on top of `age_delta`. |
-| `height_delta` (per in) | +0.017 | Minor height edge. |
-| `reach_delta` (per in) | +0.008 | Reach helps a little (mostly already in height/style). |
-| `form_delta` | +0.005 | Last-3-fight rating trend — essentially no marginal signal beyond the rating itself. |
-| `reach_missing` | +0.296 | Missing-indicator; a residual era confound. Symmetric → **cancels in `predict_fight`**, and is ~0 in the modern eval window (reach is populated for recent fighters). |
-| `rematch` | +0.010 | ~0 — correct: "is a rematch" alone is non-directional; direction lives in `prior_winner`. |
+| `glicko_logit` | **+0.365** | Rating gap is the dominant signal, but shrunk (temperature 0.36 < 1: raw Glicko is over-confident). |
+| `age_delta` (per yr) | **−0.084** | The younger fighter is favoured; a 5-year age edge ≈ +10 pts win prob. Strongest non-rating factor. |
+| `layoff_delta` (per yr) | **−0.131** | Ring rust is real: a fighter a year longer removed loses ≈ 3 pts. |
+| `style_wr_vs_str` | **+0.142** | Wrestlers beat strikers — the classic stylistic edge shows up cleanly. |
+| `southpaw_orthodox` | **+0.112** | Southpaws hold an edge over orthodox opponents. |
+| `style_gr_vs_str` | −0.079 | Pure grapplers fare slightly *worse* vs. strikers (range/takedown-entry problem). |
+| `style_gr_vs_wr` | −0.023 | Grappler slightly under wrestler. |
+| `prior_winner` | +0.028 | Winning the previous meeting carries a small edge into a rematch. |
+| `over35_delta` | −0.025 | Extra decline once past 35, on top of `age_delta`. |
+| `height_delta` (per in) | +0.021 | Minor height edge. |
+| `reach_delta` (per in) | +0.009 | Reach helps a little (mostly already in height/style). |
+| `form_delta` | +0.013 | Last-3-fight rating trend adds little marginal signal beyond the rating itself. |
+| `reach_missing` | +0.101 | Missing-indicator; a residual era confound. Symmetric → **cancels in `predict_fight`**, and is ~0 in the modern eval window (reach is populated for recent fighters). |
+| `rematch` | −0.095 | Rematch context is small relative to rating, age, and style features; direction lives in `prior_winner`. |
+| `weight_gap` | +0.185 | Documented physical prior used only for speculative cross-division matchups. |
 
 Signs are all physically sensible. The biggest movers after the rating itself are
 **age, layoff, and the wrestler-vs-striker / stance matchups** — exactly the
@@ -128,11 +129,11 @@ raw-Glicko walk-forward log-loss is measured on 2013+ decisive fights.
 
 | Variant | Raw-Glicko log-loss | Δ vs shipped |
 |---|--:|--:|
-| **shipped** (all on) | 0.6956 | +0.0000 |
-| `delta_cap_off` | 0.7102 | **+0.0146** (cap strongly helps) |
-| `mov_correction_off` | 0.6971 | **+0.0015** (538 correction helps) |
-| `stakes_off` | 0.6948 | −0.0008 (≈ noise) |
-| `mov_base_off` (flat M_base) | 0.6915 | −0.0041 (finish weighting slightly hurts raw Glicko) |
+| **shipped** (all on) | 0.6955 | +0.0000 |
+| `delta_cap_off` | 0.7100 | **+0.0145** (cap strongly helps) |
+| `mov_correction_off` | 0.6970 | **+0.0015** (538 correction helps) |
+| `stakes_off` | 0.6948 | −0.0007 (≈ noise) |
+| `mov_base_off` (flat M_base) | 0.6914 | −0.0041 (finish weighting slightly hurts raw Glicko) |
 
 **Reading:** a *positive* Δ means turning the component off makes the ratings
 worse, so it earns its keep. `delta_cap` and `mov_correction` clearly do.

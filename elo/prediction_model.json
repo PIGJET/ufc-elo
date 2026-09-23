@@ -1,22 +1,22 @@
 {
   "coefficients": {
-    "glicko_logit": 0.36704524605300287,
-    "reach_delta": 0.007994102077975069,
-    "reach_missing": 0.34874549928060966,
-    "height_delta": 0.018391193573945728,
-    "age_delta": -0.08066183451144854,
-    "over35_delta": -0.037026696587423934,
-    "layoff_delta": -0.1515728942160801,
-    "form_delta": 0.0054153030878743005,
-    "southpaw_orthodox": 0.11631129291678316,
-    "style_wr_vs_str": 0.11710427240676552,
-    "style_gr_vs_str": -0.08766218062313727,
-    "style_gr_vs_wr": -0.05712319474063288,
-    "rematch": 0.008960973094747223,
-    "prior_winner": 0.056910518179480285,
+    "glicko_logit": 0.36452384577678365,
+    "reach_delta": 0.009370724744521984,
+    "reach_missing": 0.10114492058816045,
+    "height_delta": 0.02065258899915658,
+    "age_delta": -0.08356912166958767,
+    "over35_delta": -0.025447720773156813,
+    "layoff_delta": -0.13146214795669378,
+    "form_delta": 0.012999716425512639,
+    "southpaw_orthodox": 0.11214749519897502,
+    "style_wr_vs_str": 0.14227794393122492,
+    "style_gr_vs_str": -0.07910356838605981,
+    "style_gr_vs_wr": -0.02294196375985587,
+    "rematch": -0.0948839343951597,
+    "prior_winner": 0.027528326463016957,
     "weight_gap": 0.185
   },
-  "intercept": 0.23829072021058675,
+  "intercept": 0.24349858402693136,
   "feature_order": [
     "glicko_logit",
     "reach_delta",
@@ -35,8 +35,8 @@
     "weight_gap"
   ],
   "impute": {
-    "reach_in": 71.54344328238133,
-    "height_in": 70.14362220058423,
+    "reach_in": 71.54238650060265,
+    "height_in": 70.14035514473365,
     "age": 29.0
   },
   "offsets": {
@@ -53,12 +53,12 @@
     "Women's Flyweight": 0.0
   },
   "metadata": {
-    "generated_at": "2026-07-18T19:32:26+00:00",
-    "n_train_fights": 8555,
+    "generated_at": "2026-09-23T23:05:09+00:00",
+    "n_train_fights": 8752,
     "model": "logistic regression with intercept (corner-aware); predict_fight symmetrizes over corner for order-invariance",
     "recency_half_life_years": 3.0,
-    "glicko_temperature": 0.36704524605300287,
-    "corner_prior_intercept": 0.23829072021058675,
+    "glicko_temperature": 0.36452384577678365,
+    "corner_prior_intercept": 0.24349858402693136,
     "note": "glicko_logit coefficient is the calibration temperature (<1 => raw Glicko is over-confident); intercept is the red-corner/favourite prior; features per elo.features.FEATURE_NAMES"
   }
 }

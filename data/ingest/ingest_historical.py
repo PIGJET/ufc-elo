@@ -35,6 +35,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 import pandas as pd
+import requests
 
 # --- make `data` package importable so we can reuse the shared DB helper ------
 DATA_DIR = Path(__file__).resolve().parent.parent
@@ -43,7 +44,18 @@ from data.db import init_db, log_provenance  # noqa: E402
 
 RAW_DIR = DATA_DIR / "raw"
 SOURCE = "ufcstats-scrape:Greco1899"
-TODAY = date(2026, 7, 17)
+RAW_BASE_URL = (
+    "https://raw.githubusercontent.com/Greco1899/"
+    "scrape_ufc_stats/main"
+)
+RAW_FILES = (
+    "ufc_event_details.csv",
+    "ufc_fight_details.csv",
+    "ufc_fight_results.csv",
+    "ufc_fight_stats.csv",
+    "ufc_fighter_details.csv",
+    "ufc_fighter_tott.csv",
+)
 
 DIVISIONS = [
     "Light Heavyweight", "Heavyweight", "Welterweight", "Middleweight",
@@ -188,7 +200,29 @@ def parse_judge_scores(details):
 # main ingestion
 # ---------------------------------------------------------------------------
 
+def refresh_raw_files() -> None:
+    """Download a consistent-enough current snapshot of the public CSV export.
+
+    Files are written through a temporary sibling so an interrupted download
+    cannot leave a truncated CSV behind. The raw directory is intentionally
+    gitignored; the reconciled SQLite snapshot is the release artifact.
+    """
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    session = requests.Session()
+    session.headers["User-Agent"] = "PIGJET/ufc-elo data refresh"
+
+    for filename in RAW_FILES:
+        response = session.get(f"{RAW_BASE_URL}/{filename}", timeout=60)
+        response.raise_for_status()
+        target = RAW_DIR / filename
+        temporary = target.with_suffix(target.suffix + ".tmp")
+        temporary.write_bytes(response.content)
+        temporary.replace(target)
+        print(f"Downloaded {filename} ({len(response.content):,} bytes)")
+
+
 def main() -> None:
+    refresh_raw_files()
     conn = init_db()
     conn.execute("PRAGMA busy_timeout = 30000")
     cur = conn.cursor()
@@ -308,7 +342,7 @@ def main() -> None:
         edate = parse_event_date(row["DATE"])
         loc = row["LOCATION"] if isinstance(row["LOCATION"], str) else None
         status = "completed"
-        if edate and date.fromisoformat(edate) > TODAY:
+        if edate and date.fromisoformat(edate) > date.today():
             status = "upcoming"
         existing = cur.execute("SELECT id FROM events WHERE ufcstats_id=?", (uid,)).fetchone()
         if existing:

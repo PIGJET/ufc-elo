@@ -41,7 +41,8 @@ def _latest_odds(conn, fight_id: int) -> dict[str, Any] | None:
 def upcoming_events(conn=Depends(db)) -> dict[str, Any]:
     events = conn.execute(
         "SELECT id, name, date, location, venue FROM events "
-        "WHERE status = 'upcoming' ORDER BY date ASC, id ASC"
+        "WHERE status = 'upcoming' AND date >= date('now') "
+        "ORDER BY date ASC, id ASC"
     ).fetchall()
 
     out_events = []

@@ -1,6 +1,6 @@
 # UFC Elo — Data Quality Report
 
-_Generated 2026-07-17T13:53:10 from `data/ufc.db`._
+_Generated 2026-09-23T19:14:17 from `data/ufc.db`._
 
 Source dataset: **Greco1899/scrape_ufc_stats** (complete ufcstats.com export). Raw CSVs archived in `data/raw/`.
 
@@ -8,19 +8,20 @@ Source dataset: **Greco1899/scrape_ufc_stats** (complete ufcstats.com export). R
 
 | Table | Rows |
 |---|---:|
-| fighters | 4,497 |
-| events | 774 |
-| fights | 8,701 |
-| fight_stats | 17,358 |
+| fighters | 4,632 |
+| events | 807 |
+| fights | 9,032 |
+| fight_stats | 17,754 |
 | odds | 0 |
-| rankings_snapshot | 0 |
-| elo_history | 0 |
-| provenance | 66,707 |
+| rankings_snapshot | 408 |
+| elo_history | 17,634 |
+| provenance | 74,695 |
 
 ## Fights per year (coverage gaps)
 
 | Year | Events | Fights |
 |---|---:|---:|
+| 1993 | 1 | 8 |
 | 1994 | 3 | 31 |
 | 1995 | 4 | 40 |
 | 1996 | 5 | 43 |
@@ -53,29 +54,29 @@ Source dataset: **Greco1899/scrape_ufc_stats** (complete ufcstats.com export). R
 | 2023 | 43 | 520 |
 | 2024 | 42 | 517 |
 | 2025 | 43 | 522 |
-| 2026 | 16 | 205 |
+| 2026 | 48 | 528 |
 
 ## Missing / null rates for key fields
 
 | Entity | Field | Missing | Total | % missing |
 |---|---|---:|---:|---:|
-| fighters | reach_in | 2,018 | 4,497 | 44.9% |
-| fighters | height_in | 396 | 4,497 | 8.8% |
-| fighters | dob | 768 | 4,497 | 17.1% |
-| fighters | stance | 911 | 4,497 | 20.3% |
-| fighters | ufcstats_id | 1 | 4,497 | 0.0% |
-| fights | method | 0 | 8,701 | 0.0% |
-| fights | round | 0 | 8,701 | 0.0% |
-| fights | time_seconds | 0 | 8,701 | 0.0% |
-| fights | weight_class | 0 | 8,701 | 0.0% |
-| fights | winner_id (decisive only) | 0 | 8,547 | 0.0% |
-| fights | scheduled_rounds | 31 | 8,701 | 0.4% |
+| fighters | reach_in | 2,143 | 4,632 | 46.3% |
+| fighters | height_in | 521 | 4,632 | 11.2% |
+| fighters | dob | 791 | 4,632 | 17.1% |
+| fighters | stance | 1,028 | 4,632 | 22.2% |
+| fighters | ufcstats_id | 13 | 4,632 | 0.3% |
+| fights | method | 125 | 9,032 | 1.4% |
+| fights | round | 125 | 9,032 | 1.4% |
+| fights | time_seconds | 125 | 9,032 | 1.4% |
+| fights | weight_class | 0 | 9,032 | 0.0% |
+| fights | winner_id (decisive only) | 0 | 8,752 | 0.0% |
+| fights | scheduled_rounds | 156 | 9,032 | 1.7% |
 
 ## Fight-stats coverage
 
-- Fights with at least one stat row: **8,679 / 8,701** (99.7%).
-- Fights with stats for **both** fighters: **8,679**.
-- Stat rows missing control time (pre-2010ish, not tracked): **360 / 17,358**.
+- Fights with at least one stat row: **8,877 / 9,032** (98.3%).
+- Fights with stats for **both** fighters: **8,877**.
+- Stat rows missing control time (pre-2010ish, not tracked): **360 / 17,754**.
 
 ## Duplicate-name fighters
 
@@ -83,11 +84,17 @@ Distinct fighters sharing a display name (bout-string name matching resolves the
 
 | Name | Count | ufcstats ids |
 |---|---:|---|
+| Anna Melisano | 2 | 40a7ec5d1ad6ffa8 |
+| Anthony Figueroa | 2 | daff32bc96d1eabf, 35e3a24591f4e2cd |
 | Bruno Silva | 2 | 294aa73dbf37d281, 12ebd7d157e91701 |
+| Damian Rzepecki | 2 | 99223fbb4a05326b |
+| Damien Anderson | 2 | df619b9a86ce0a9a |
 | Jean Silva | 2 | 9211aae062b799d6, 52ef95b5860fb28c |
 | Joey Gomez | 2 | 0778f94eb5d588a5, 3a28e1e641366308 |
 | Michael McDonald | 2 | d52ef694108f8235, d0314416a7f26527 |
 | Mike Davis | 2 | c8661e204c66f325, fb3e61720be4690c |
+| Nina Milosevic | 2 | eabece0edc2d62ca |
+| RJ Harris | 2 | e03187ec8b5b6abc |
 | Tony Johnson | 2 | 3641a0d117e9bc6c, a45bab49951a45cd |
 | Victor Valenzuela | 2 | de277a4abcfeea46, 078695e385ec2f57 |
 
@@ -109,24 +116,26 @@ Fights method values present (should all be in the schema vocab KO/TKO, SUB, U-D
 
 | method | count | valid? |
 |---|---:|---|
-| U-DEC | 3135 | yes |
-| KO/TKO | 2837 | yes |
-| SUB | 1685 | yes |
-| S-DEC | 825 | yes |
+| U-DEC | 3195 | yes |
+| KO/TKO | 2928 | yes |
+| SUB | 1731 | yes |
+| S-DEC | 833 | yes |
+| None | 125 | NULL |
 | M-DEC | 104 | yes |
-| NC | 92 | yes |
+| NC | 93 | yes |
 | DQ | 23 | yes |
 
 | result_current | count | valid? |
 |---|---:|---|
-| win | 8524 | yes |
-| nc | 89 | yes |
+| win | 8729 | yes |
+| upcoming | 125 | yes |
+| nc | 90 | yes |
 | draw | 65 | yes |
 | dq | 23 | yes |
 
 ## Ground-truth spot checks
 
-- Total events: **774** (expected 700+). Date range **1994-03-11 -> 2026-05-16**.
+- Total events: **807** (expected 700+). Date range **1993-11-12 -> 2026-11-14**.
 - Miocic/Ngannou @ UFC 220: Miocic vs. Ngannou (2018-01-20): Stipe Miocic by U-DEC R5.
 - Miocic/Ngannou @ UFC 260: Miocic vs. Ngannou (2021-03-27): Francis Ngannou by KO/TKO R2.
 - Nunes/Rousey @ UFC 207: Nunes vs. Rousey (2016-12-30): Amanda Nunes by KO/TKO.
