@@ -76,6 +76,23 @@ def test_upcoming_events_exclude_past_cards(client: TestClient) -> None:
     events = response.json()["events"]
     assert events
     assert all(event["date"] >= date.today().isoformat() for event in events)
+    freshness = response.json()["data_freshness"]
+    assert freshness["latest_completed_event_date"]
+    assert freshness["ratings_as_of"]
+    assert freshness["model_generated_at"]
+    assert "upcoming_events_synced_at" in freshness
+
+
+def test_rankings_report_snapshot_and_rating_freshness(client: TestClient) -> None:
+    official = client.get("/api/rankings")
+    elo = client.get("/api/rankings/elo")
+    assert official.status_code == elo.status_code == 200
+    assert official.json()["snapshot_date"]
+    assert elo.json()["snapshot_date"] is None
+    for payload in (official.json(), elo.json()):
+        assert payload["data_freshness"]["latest_completed_event_date"]
+        assert payload["data_freshness"]["ratings_as_of"]
+        assert payload["data_freshness"]["model_generated_at"]
 
 
 def test_refresh_endpoint_is_disabled_without_secret(client: TestClient) -> None:

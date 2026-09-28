@@ -200,9 +200,9 @@ def main() -> None:
     # ---- known gaps ----
     w("## Known gaps & caveats")
     w("")
-    w("- **UFC 1 (Nov 1993) is absent from the source export** — ufcstats.com's event "
-      "listing that this scrape mirrors starts at UFC 2. Earliest event here is UFC 2 "
-      "(1994-03-11). The live ufcstats scraper should backfill UFC 1.")
+    w("- The upstream ufcstats export starts at UFC 2. **UFC 1 (Nov 1993) is "
+      "present via the documented manual Wikipedia backfill**, with all eight "
+      "results but no per-fight stats.")
     w("- Round-by-round **control time is not recorded for older fights** (ufcstats only "
       "began tracking it ~2010); such stat rows have `control_time_seconds` NULL.")
     w("- Some earliest events have **no per-fight stats** at all in the source.")

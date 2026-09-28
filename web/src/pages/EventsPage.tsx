@@ -62,6 +62,22 @@ function FightRow({ fight }: { fight: EventFight }) {
       </button>
       {open && (
         <div className="fight-acc-body">
+          {fight.prediction &&
+            (fight.prediction.speculative || fight.prediction.cross_division) && (
+              <div className="spec-note compact">
+                <strong>Speculative prediction.</strong>{' '}
+                {fight.prediction.cross_division
+                  ? 'The fighters are rated in different divisions, so this uses an extrapolated division adjustment. '
+                  : ''}
+                Treat this estimate with extra caution because the matchup data is thin or uncertain.
+              </div>
+            )}
+          {!fight.prediction && (
+            <div className="spec-note compact">
+              <strong>Incomplete prediction data.</strong>{' '}
+              At least one announced fighter has no current rating, so no win probability is shown.
+            </div>
+          )}
           <MatchupModule
             red={fight.red}
             blue={fight.blue}
@@ -129,6 +145,18 @@ export default function EventsPage() {
       <h1 className="page-title">
         Upcoming <span className="accent">Events</span>
       </h1>
+      <div className="freshness-note">
+        <strong>Data freshness.</strong> Upcoming cards last synced{' '}
+        {fmtDate(data.data_freshness.upcoming_events_synced_at)}; completed results
+        run through {fmtDate(data.data_freshness.latest_completed_event_date)}; ratings
+        calculated as of {fmtDate(data.data_freshness.ratings_as_of)}.
+        <span className="model-note">
+          Production model fitted {fmtDate(data.data_freshness.model_generated_at)}.{' '}
+          Predictions use the order-invariant website predictor (60.1% historical
+          walk-forward accuracy), not the 60.3% corner-aware evaluator; neither is
+          a guarantee of future results.
+        </span>
+      </div>
       {data.events.length === 0 && (
         <div className="empty-note">No upcoming events.</div>
       )}

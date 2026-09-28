@@ -25,7 +25,8 @@ export interface Division {
 }
 
 export interface RankingsResponse {
-  snapshot_date: string
+  snapshot_date: string | null
+  data_freshness: DataFreshness
   divisions: Division[]
   pound_for_pound: {
     mens: RankedFighter[]
@@ -248,7 +249,14 @@ export interface UpcomingEvent {
 }
 
 export interface EventsResponse {
+  data_freshness: DataFreshness & { upcoming_events_synced_at: string | null }
   events: UpcomingEvent[]
+}
+
+export interface DataFreshness {
+  latest_completed_event_date: string | null
+  ratings_as_of: string | null
+  model_generated_at: string | null
 }
 
 export interface MatchupResponse extends ComparisonBlock {

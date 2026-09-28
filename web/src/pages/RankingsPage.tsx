@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Division, RankedFighter, RankingsResponse } from '../api/types'
 import { getRankings, getRankingsElo } from '../api/client'
+import { fmtDate } from '../api/format'
 import DivisionColumn from '../components/DivisionColumn'
 
 type Mode = 'official' | 'elo'
@@ -96,7 +97,23 @@ export default function RankingsPage() {
       {!data ? (
         <div className="loading">Loading rankings…</div>
       ) : (
-        <RankingsBoard data={data} mode={mode} />
+        <>
+          <div className="freshness-note">
+            <strong>Data freshness.</strong>{' '}
+            {mode === 'official'
+              ? `Official rankings snapshot: ${fmtDate(data.snapshot_date)}.`
+              : `Elo ratings calculated as of ${fmtDate(data.data_freshness.ratings_as_of)}.`}{' '}
+            Completed-fight data runs through{' '}
+            {fmtDate(data.data_freshness.latest_completed_event_date)}.
+            {mode === 'elo' && (
+              <span className="model-note">
+                Production prediction model fitted{' '}
+                {fmtDate(data.data_freshness.model_generated_at)}.
+              </span>
+            )}
+          </div>
+          <RankingsBoard data={data} mode={mode} />
+        </>
       )}
     </div>
   )

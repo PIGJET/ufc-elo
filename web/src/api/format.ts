@@ -33,7 +33,7 @@ export function fmtDate(s: string | null | undefined): string {
   if (!s) return DASH
   // Parse date-only strings (YYYY-MM-DD) as local, not UTC, to avoid a
   // timezone shift that can display the previous day.
-  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.exec(s)
+  const dateOnly = /^\d{4}-\d{2}-\d{2}/.exec(s)
   const d = dateOnly
     ? new Date(Number(s.slice(0, 4)), Number(s.slice(5, 7)) - 1, Number(s.slice(8, 10)))
     : new Date(s)

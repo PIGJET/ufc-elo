@@ -1,6 +1,6 @@
 # UFC Elo — Data Quality Report
 
-_Generated 2026-09-23T19:14:17 from `data/ufc.db`._
+_Generated 2026-09-28T18:27:14 from `data/ufc.db`._
 
 Source dataset: **Greco1899/scrape_ufc_stats** (complete ufcstats.com export). Raw CSVs archived in `data/raw/`.
 
@@ -142,7 +142,7 @@ Fights method values present (should all be in the schema vocab KO/TKO, SUB, U-D
 
 ## Known gaps & caveats
 
-- **UFC 1 (Nov 1993) is absent from the source export** — ufcstats.com's event listing that this scrape mirrors starts at UFC 2. Earliest event here is UFC 2 (1994-03-11). The live ufcstats scraper should backfill UFC 1.
+- The upstream ufcstats export starts at UFC 2. **UFC 1 (Nov 1993) is present via the documented manual Wikipedia backfill**, with all eight results but no per-fight stats.
 - Round-by-round **control time is not recorded for older fights** (ufcstats only began tracking it ~2010); such stat rows have `control_time_seconds` NULL.
 - Some earliest events have **no per-fight stats** at all in the source.
 - `catchweight_lbs` is NULL: the source records the bout as 'Catch Weight' but not the contracted poundage.

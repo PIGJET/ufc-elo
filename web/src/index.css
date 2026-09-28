@@ -73,6 +73,23 @@ a {
   color: var(--red);
 }
 
+.freshness-note {
+  background: var(--bg-2);
+  border-left: 3px solid var(--red);
+  color: var(--text-grey);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: -10px 0 22px;
+  padding: 10px 14px;
+}
+.freshness-note strong {
+  color: var(--text);
+}
+.model-note {
+  display: block;
+  margin-top: 3px;
+}
+
 /* ---------- Top nav ---------- */
 .topnav {
   background: #0f0f0f;
@@ -841,6 +858,9 @@ a {
   font-family: 'Oswald', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+.spec-note.compact {
+  margin: 0;
 }
 .rating-gap-line {
   font-family: 'Oswald', sans-serif;

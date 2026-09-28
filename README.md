@@ -9,18 +9,26 @@
 
 ![UFC Elo rankings dashboard](docs/demo.png)
 
-## Results
+## Evaluated models and served predictor
 
-The prediction layer was evaluated out of sample on **6,616 fights from 2013
-onward**. For each calendar year, the model was refit using only earlier fights.
+The corner-aware prediction layer was evaluated out of sample on **6,616 fights
+from 2013 onward**. For each calendar year, the model was refit using only
+earlier fights.
 
 | Model | Log loss | Brier score | Accuracy |
 | --- | ---: | ---: | ---: |
 | Coin flip | 0.6931 | 0.2500 | 50.0% |
 | Vanilla Elo | 0.6845 | 0.2457 | 55.7% |
-| UFC Elo prediction layer | **0.6588** | **0.2330** | **60.3%** |
+| Corner-aware evaluator | **0.6588** | **0.2330** | **60.3%** |
 
-Expected calibration error is **0.0336**. See the
+The website does **not** serve that corner-aware score directly. Event cards and
+hypothetical matchups call the order-invariant `predict_fight` projection, which
+averages both corner assignments. Its recorded walk-forward result is **0.6637
+log loss / 60.1% accuracy**. The persisted production coefficients are fit on
+all available history after evaluation; neither historical result guarantees
+future performance.
+
+The corner-aware evaluator's expected calibration error is **0.0335**. See the
 [backtest report](docs/backtest_report.md) and
 [optimization report](docs/optimization_report.md) for the methodology,
 ablations, calibration buckets, and known limitations.
@@ -90,8 +98,11 @@ pytest -q
 
 cd web
 npm ci
+npm audit
 npm run lint
 npm run build
+cd ..
+python tests/smoke_deployment.py
 ```
 
 GitHub Actions runs the same backend and frontend checks on every pull request.
@@ -100,6 +111,8 @@ GitHub Actions runs the same backend and frontend checks on every pull request.
 
 `render.yaml` builds the React client and serves it from the FastAPI process as
 one Render service. The blueprint includes a health check at `/api/health`.
+The smoke test above starts that combined service locally and verifies API,
+static assets, and direct client-route navigation.
 
 `POST /api/refresh` is disabled by default. To allow a trusted operator to
 rebuild in-memory caches without restarting the service, set

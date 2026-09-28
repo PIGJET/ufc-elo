@@ -13,7 +13,7 @@ from typing import Any
 from fastapi import APIRouter, Depends
 
 from api.deps import db
-from api.serialize import best_rating_row, rating_in_division, rating_pair
+from api.serialize import best_rating_row, data_freshness, rating_in_division, rating_pair
 from elo.divisions import STANDARD_DIVISIONS
 
 router = APIRouter()
@@ -108,6 +108,7 @@ def get_rankings(conn=Depends(db)) -> dict[str, Any]:
 
     return {
         "snapshot_date": snapshot_date,
+        "data_freshness": data_freshness(conn),
         "divisions": divisions,
         "pound_for_pound": {"mens": p4p(_MENS_P4P), "womens": p4p(_WOMENS_P4P)},
     }
@@ -192,6 +193,7 @@ def get_rankings_elo(conn=Depends(db)) -> dict[str, Any]:
 
     return {
         "snapshot_date": None,
+        "data_freshness": data_freshness(conn),
         "divisions": divisions,
         "pound_for_pound": {"mens": mens, "womens": womens},
     }
