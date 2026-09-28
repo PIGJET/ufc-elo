@@ -78,7 +78,7 @@ def main() -> None:
         search_status, _, search_body = _request(f"{base}/api/fighters?search=makhachev")
         fighter_id = json.loads(search_body)["results"][0]["id"]
         assert search_status == 200
-        for route in ("/events", "/matchups", f"/fighter/{fighter_id}"):
+        for route in ("/events", "/matchups", "/methodology", f"/fighter/{fighter_id}"):
             route_status, route_type, _ = _request(base + route)
             assert route_status == 200 and "text/html" in route_type, route
 
