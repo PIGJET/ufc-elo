@@ -11,7 +11,7 @@ An independent UFC analytics website with division-aware Glicko-2 ratings, fight
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
 
-[Run locally](#run-locally) · [Publish your website](docs/DEPLOYMENT.md) · [Model evaluation](#model-evaluation) · [API guide](api/README.md) · [Contributing](CONTRIBUTING.md)
+[Run locally](#run-locally) · [Model evaluation](#model-evaluation) · [API guide](api/README.md) · [Contributing](CONTRIBUTING.md)
 
 ![UFC Elo rankings dashboard showing division rankings and fighter ratings](docs/screenshots/after/rankings-desktop.png)
 
@@ -76,13 +76,7 @@ npm run dev
 
 Open the local URL printed by Vite. The frontend proxies `/api` to port 8000. Interactive API documentation is available at `http://localhost:8000/docs`.
 
-No data refresh is needed to try the committed snapshot. For maintaining a published installation, see [updating the data](docs/DEPLOYMENT.md#updating-the-data).
-
-## Publish the website
-
-The existing [Render blueprint](render.yaml) builds React and serves it with FastAPI as one web service. You do not need separate frontend and backend hosts.
-
-Follow the [deployment guide](docs/DEPLOYMENT.md) to connect the repository, deploy the service, check the public URL, and keep the snapshot current. Review the selected hosting plan and auto-deployment settings before creating the service.
+No data refresh is needed to try the committed snapshot.
 
 ## Verify changes
 
@@ -109,7 +103,7 @@ Then return to the repository root and exercise the combined production server:
 python tests/smoke_deployment.py
 ```
 
-GitHub Actions runs the backend, frontend lint/build, and smoke checks on pull requests and pushes to `main`. Run `npm audit` separately on the release commit, then check the live site before sharing it.
+GitHub Actions runs the backend, frontend lint/build, and smoke checks on pull requests and pushes to `main`.
 
 ## Project map
 
@@ -119,7 +113,7 @@ GitHub Actions runs the backend, frontend lint/build, and smoke checks on pull r
 | `elo/` | Rating engine, features, calibration, backtests, and fitted model |
 | `api/` | FastAPI routes, caches, and serialization |
 | `web/` | React/TypeScript client, charts, and responsive styling |
-| `docs/` | Deployment instructions and model/data reports |
+| `docs/` | Model, data-quality, and design reports |
 
 ## Data and limitations
 

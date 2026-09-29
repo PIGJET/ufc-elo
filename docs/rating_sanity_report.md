@@ -147,8 +147,7 @@ rating. There is no runaway drift — the population mean is conserved at ~1500.
    `RD_INACTIVITY_C_PER_YEAR = 80` and many "active" fighters last seen 12–18
    months before `as_of`, deviations stay wide. This is realistic for a
    high-variance sport but makes deviation-aware win probabilities conservative;
-   the prediction-layer agent may want to revisit this constant against
-   calibration.
+   this constant may warrant revisiting against prediction calibration.
 
 ## 8. Config values chosen beyond the plan defaults
 

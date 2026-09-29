@@ -1,8 +1,7 @@
-# UFC Elo Rating & Matchup Predictor — Approved Plan (v2)
+# UFC Elo Rating & Matchup Predictor — Technical Design (v2)
 
-This is the approved build plan. All implementation work must conform to it.
 Repo layout: `data/` (scrapers + ingestion + SQLite DB), `elo/` (rating engine),
-`api/` (FastAPI), `web/` (React frontend), `docs/` (this plan + reports).
+`api/` (FastAPI), `web/` (React frontend), `docs/` (design and reports).
 
 ## 1. Project goal
 
@@ -83,7 +82,7 @@ regression fit on historical fights:
   train on fights before T, evaluate after. No future info in any feature.
 - Cross-division matchups get D_w adjustment + "speculative comparison" flag.
 
-## 5. Backtesting harness (Phase 2 deliverable)
+## 5. Backtesting harness
 
 Walk-forward replay of full history producing: log-loss + Brier vs. three baselines
 (coin flip, vanilla Elo, betting odds where available), calibration curve
@@ -124,12 +123,3 @@ gain/loss), MatchupsPage (two typeahead pickers → same module + factor breakdo
 cross-division note), FighterProfilePage (hero w/ cutout photo, chips, nickname,
 record, rating ± RD, stat row with red underlines, rating-over-time chart, last
 fight card, fight history).
-
-## 9. Build phases
-
-1. Data layer (schema, ingestion, scrapers, odds client, provenance, DQ report)
-2. Rating engine + calibration + backtest harness
-3. API
-4. Frontend
-
-Check in with the user after each phase.
