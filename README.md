@@ -13,7 +13,7 @@ An independent UFC analytics website with division-aware Glicko-2 ratings, fight
 
 [Run locally](#run-locally) · [Publish your website](docs/DEPLOYMENT.md) · [Model evaluation](#model-evaluation) · [API guide](api/README.md) · [Contributing](CONTRIBUTING.md)
 
-![UFC Elo rankings dashboard showing division rankings and fighter ratings](docs/demo.png)
+![UFC Elo rankings dashboard showing division rankings and fighter ratings](docs/screenshots/after/rankings-desktop.png)
 
 ## Explore the sport
 
