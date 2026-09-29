@@ -1,130 +1,136 @@
 # UFC Elo
 
-> A full-stack combat-sports analytics platform combining historical ratings, fighter profiles, event data, and matchup probabilities.
+**Explore fighter rankings. Understand the matchup. Follow the numbers.**
 
+An independent UFC analytics website with division-aware Glicko-2 ratings, fighter histories, upcoming-event comparisons, and explainable matchup probabilities.
+
+[![CI](https://github.com/PIGJET/ufc-elo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/PIGJET/ufc-elo/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
 ![React](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
 
-![UFC Elo rankings dashboard](docs/demo.png)
+[Run locally](#run-locally) · [Publish your website](docs/DEPLOYMENT.md) · [Model evaluation](#model-evaluation) · [API guide](api/README.md) · [Contributing](CONTRIBUTING.md)
 
-## Evaluated models and served predictor
+![UFC Elo rankings dashboard showing division rankings and fighter ratings](docs/demo.png)
 
-The corner-aware prediction layer was evaluated out of sample on **6,616 fights
-from 2013 onward**. For each calendar year, the model was refit using only
-earlier fights.
+## Explore the sport
 
-| Model | Log loss | Brier score | Accuracy |
-| --- | ---: | ---: | ---: |
-| Coin flip | 0.6931 | 0.2500 | 50.0% |
-| Vanilla Elo | 0.6845 | 0.2457 | 55.7% |
-| Corner-aware evaluator | **0.6588** | **0.2330** | **60.3%** |
-
-The website does **not** serve that corner-aware score directly. Event cards and
-hypothetical matchups call the order-invariant `predict_fight` projection, which
-averages both corner assignments. Its recorded walk-forward result is **0.6637
-log loss / 60.1% accuracy**. The persisted production coefficients are fit on
-all available history after evaluation; neither historical result guarantees
-future performance.
-
-The corner-aware evaluator's expected calibration error is **0.0335**. See the
-[backtest report](docs/backtest_report.md) and
-[optimization report](docs/optimization_report.md) for the methodology,
-ablations, calibration buckets, and known limitations.
-
-## Overview
-
-UFC Elo replays the promotion's fight history through a division-aware Glicko-2 engine, then layers matchup features on top to produce calibrated win probabilities. The result is a searchable web product with rankings, fighter profiles, rating histories, upcoming events, odds, and head-to-head analysis.
-
-## What makes the model interesting
-
-- Maintains rating, uncertainty, and volatility separately for each division.
-- Expands uncertainty during layoffs instead of silently decaying a fighter's skill.
-- Adjusts rating movement for finish type, round, upset magnitude, and fight stakes.
-- Transfers fighters between divisions using fitted, monotonic division offsets.
-- Keeps matchup features separate from the underlying rating engine.
-- Fits age, inactivity, stance, style, rematch, and physical attributes using walk-forward evaluation.
-- Records data provenance and preserves conflicting source values for auditability.
-
-![Walk-forward calibration report](docs/calibration.png)
-
-## Product surface
-
-- Official and model-based division rankings
-- Fighter search, profiles, bios, and rating-history charts
-- Upcoming-event cards with predictions and available betting odds
-- Any-fighter matchup comparison with an explainable probability breakdown
-- FastAPI endpoints for rankings, fighters, events, and matchups
-
-## Architecture
-
-| Directory | Responsibility |
+| Feature | What you can explore |
 | --- | --- |
-| `data/` | SQLite schema, ingestion, scraping, synchronization, and quality reports |
-| `elo/` | Glicko-2 engine, features, calibration, backtests, and prediction model |
-| `api/` | FastAPI application, caches, serialization, and route modules |
-| `web/` | React/TypeScript interface and data visualizations |
-| `docs/` | Model, optimization, calibration, and data-quality reports |
+| Rankings | Compare official ranking snapshots with model-based division and pound-for-pound boards. |
+| Fighter profiles | Search fighters and inspect their bios, records, fight histories, and rating charts. |
+| Upcoming events | Browse scheduled cards, matchup predictions, available odds, and potential rating changes. |
+| Matchup explorer | Compare two fighters and see the factors contributing to the prediction. |
+
+The repository includes a SQLite data snapshot and fitted model, so a first local run does not require scraping or an odds API key. Data is a snapshot, not a live feed; odds can be unavailable.
+
+## How it works
+
+Fight history is replayed through separate Glicko-2 rating pools for each division. The engine tracks rating, uncertainty, and volatility. Layoffs increase uncertainty; finish type, upset magnitude, and fight stakes adjust the rating change. Division changes carry information between pools using fitted offsets.
+
+Win probabilities come from a separate prediction layer using rating differences and matchup features such as age, inactivity, stance, style, and physical attributes. The website's predictor is order-invariant: swapping the fighters reverses the probability. Cross-division comparisons include a physical prior and are speculative.
+
+Explore the [rating engine](elo/engine.py), [configuration](elo/config.py), and [prediction model](elo/predict.py) for the implementation. Data ingestion records provenance so conflicting source values can be investigated.
+
+## Model evaluation
+
+The committed [backtest report](docs/backtest_report.md), refreshed September 23, 2026, describes walk-forward evaluation on **6,616 fights from 2013 onward**, refitting each year using earlier fights. It reports two distinct prediction variants:
+
+| Evaluation variant | Log loss | Accuracy |
+| --- | ---: | ---: |
+| Coin-flip baseline | 0.6931 | 50.0% |
+| Vanilla Elo baseline | 0.6846 | 55.8% |
+| Corner-aware prediction model | 0.6588 | 60.3% |
+| Order-invariant predictor used by the website | 0.6637 | 60.1% |
+
+These are historical results reported in the repository, not guarantees of future performance. The betting-market baseline has not been evaluated because the documented odds table is empty. See the [backtest report](docs/backtest_report.md) for methodology and calibration, and the [optimization report](docs/optimization_report.md) for cross-division assumptions and limitations.
+
+![Walk-forward calibration plot documented in the backtest report](docs/calibration.png)
 
 ## Run locally
 
-```powershell
-pip install -r requirements.txt
-cd web; npm install; cd ..
+Use Python 3.11 and Node.js 22 with npm, matching the major versions in CI. From a terminal:
 
-python data\sync.py --all
-python elo\recompute.py
+```sh
+git clone https://github.com/PIGJET/ufc-elo.git
+cd ufc-elo
+python -m venv .venv
 ```
 
-Start the API and frontend in separate terminals:
+Activate the environment with `.venv\Scripts\Activate.ps1` in PowerShell, or `source .venv/bin/activate` in bash/zsh. Then install the backend dependencies:
 
-```powershell
+```sh
+python -m pip install -r requirements.txt
 python -m uvicorn api.main:app --port 8000
 ```
 
-```powershell
+In a second terminal, from the repository root:
+
+```sh
 cd web
+npm ci
 npm run dev
 ```
 
-Odds enrichment is optional and requires `ODDS_API_KEY`. The checked-in SQLite database lets the application run without performing a fresh ingest.
+Open the local URL printed by Vite. The frontend proxies `/api` to port 8000. Interactive API documentation is available at `http://localhost:8000/docs`.
 
-## Verify the release
+No data refresh is needed to try the committed snapshot. For maintaining a published installation, see [updating the data](docs/DEPLOYMENT.md#updating-the-data).
 
-```powershell
-pip install -r requirements-dev.txt
+## Publish the website
+
+The existing [Render blueprint](render.yaml) builds React and serves it with FastAPI as one web service. You do not need separate frontend and backend hosts.
+
+Follow the [deployment guide](docs/DEPLOYMENT.md) to connect the repository, deploy the service, check the public URL, and keep the snapshot current. Review the selected hosting plan and auto-deployment settings before creating the service.
+
+## Verify changes
+
+From the repository root with the Python environment active:
+
+```sh
+python -m pip install -r requirements-dev.txt
 pytest -q
+```
 
+For the frontend:
+
+```sh
 cd web
 npm ci
 npm audit
 npm run lint
 npm run build
-cd ..
+```
+
+Then return to the repository root and exercise the combined production server:
+
+```sh
 python tests/smoke_deployment.py
 ```
 
-GitHub Actions runs the same backend and frontend checks on every pull request.
+GitHub Actions runs the backend, frontend lint/build, and smoke checks on pull requests and pushes to `main`. Run `npm audit` separately on the release commit, then check the live site before sharing it.
 
-## Deployment
+## Project map
 
-`render.yaml` builds the React client and serves it from the FastAPI process as
-one Render service. The blueprint includes a health check at `/api/health`.
-The smoke test above starts that combined service locally and verifies API,
-static assets, and direct client-route navigation.
+| Directory | Responsibility |
+| --- | --- |
+| `data/` | SQLite schema, ingestion, scrapers, synchronization, and provenance |
+| `elo/` | Rating engine, features, calibration, backtests, and fitted model |
+| `api/` | FastAPI routes, caches, and serialization |
+| `web/` | React/TypeScript client, charts, and responsive styling |
+| `docs/` | Deployment instructions and model/data reports |
 
-`POST /api/refresh` is disabled by default. To allow a trusted operator to
-rebuild in-memory caches without restarting the service, set
-`UFC_ELO_REFRESH_TOKEN` and send the same value in the `X-Refresh-Token` header.
+## Data and limitations
 
-## Limitations
+- Historical data ingestion uses the public [Greco1899/scrape_ufc_stats](https://github.com/Greco1899/scrape_ufc_stats) export; scraper modules also integrate UFCStats, UFC athlete/ranking/event pages, and optional The Odds API data.
+- Snapshot freshness and source availability affect rankings, records, and upcoming cards. Consult the [data-quality report](docs/data_quality_report.md) and verify its date against the release dataset.
+- Historical physical attributes are incomplete. The model imputes missing inputs with explicit missing-data indicators.
+- Large cross-division weight gaps are extrapolations, not directly validated probability estimates.
+- UFC Elo is an independent project and is not affiliated with or endorsed by UFC. Names, images, and source datasets remain subject to their respective owners' rights and terms.
 
-- Betting odds are not included in the current database, so the model has not
-  yet been benchmarked against the market.
-- Cross-division predictions use a documented physical prior and are marked
-  speculative; large weight gaps are extrapolations, not directly validated.
-- Historical physical attributes are incomplete and are imputed with explicit
-  missing-data indicators.
-- The checked-in database is a reproducible snapshot, not a promise of live
-  rankings. Refresh it with `data/sync.py` before publishing time-sensitive data.
+## Contributing
+
+Found a data discrepancy, UI issue, or reproducible bug? [Open an issue](https://github.com/PIGJET/ufc-elo/issues) with the affected fighter/event, what you expected, and supporting evidence. For changes, read [CONTRIBUTING.md](CONTRIBUTING.md).
+
+No project license has been selected yet. Contact the repository owner about reuse permissions; third-party data and images are separate from the project's code.
