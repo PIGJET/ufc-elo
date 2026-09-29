@@ -57,6 +57,11 @@ fighter's primary rating.
 ```jsonc
 {
   "snapshot_date": "2026-07-17",
+  "data_freshness": {
+    "latest_completed_event_date": "2026-07-12",
+    "ratings_as_of": "2026-07-17",
+    "model_generated_at": "2026-07-17T20:15:00+00:00"
+  },
   "divisions": [
     {
       "division": "Flyweight",
@@ -154,6 +159,12 @@ Each fight embeds the shared **comparison payload** (see below) plus `odds`.
 
 ```jsonc
 {
+  "data_freshness": {
+    "latest_completed_event_date": "2026-07-12",
+    "ratings_as_of": "2026-07-17",
+    "model_generated_at": "2026-07-17T20:15:00+00:00",
+    "upcoming_events_synced_at": "2026-07-17 19:50:00"
+  },
   "events": [
     { "id": 775, "name": "UFC Fight Night: Du Plessis vs Usman",
       "date": "2026-07-18", "location": "...", "venue": "...",

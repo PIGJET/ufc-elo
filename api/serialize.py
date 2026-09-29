@@ -35,6 +35,22 @@ def _ratio(landed: int, attempted: int) -> float | None:
     return None if not attempted else round(landed / attempted, 4)
 
 
+def data_freshness(conn) -> dict[str, str | None]:
+    """Dates that describe the checked-in data and served prediction model."""
+    latest_completed = conn.execute(
+        "SELECT MAX(date) FROM events WHERE status = 'completed'"
+    ).fetchone()[0]
+    ratings_as_of = conn.execute(
+        "SELECT MAX(as_of) FROM ratings_current"
+    ).fetchone()[0]
+    model_generated_at = state.model.get("metadata", {}).get("generated_at")
+    return {
+        "latest_completed_event_date": latest_completed,
+        "ratings_as_of": ratings_as_of,
+        "model_generated_at": model_generated_at,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Small building blocks
 # ---------------------------------------------------------------------------

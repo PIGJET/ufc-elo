@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { EventsResponse, EventFight, UpcomingEvent } from '../api/types'
 import { getUpcomingEvents } from '../api/client'
 import { fmtDate, fmtRating } from '../api/format'
@@ -32,16 +33,33 @@ function fightTag(fight: EventFight): string {
   return tag
 }
 
+function eventDateParts(value: string) {
+  const date = new Date(
+    Number(value.slice(0, 4)),
+    Number(value.slice(5, 7)) - 1,
+    Number(value.slice(8, 10)),
+  )
+  return {
+    month: date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+    day: date.toLocaleDateString('en-US', { day: 'numeric' }),
+    year: date.toLocaleDateString('en-US', { year: 'numeric' }),
+  }
+}
+
 // Level 2: a single fight. Collapsed = a compact row; expanded mounts the
 // (heavy) comparison module. The module is only rendered while open.
 function FightRow({ fight }: { fight: EventFight }) {
   const [open, setOpen] = useState(false)
+  const bodyId = `fight-${fight.fight_id}-details`
+  const names = `${fight.red.name ?? 'TBD'} versus ${fight.blue.name ?? 'TBD'}`
   return (
     <div className={`fight-acc${open ? ' open' : ''}`}>
       <button
         type="button"
         className="fight-acc-head"
         aria-expanded={open}
+        aria-controls={bodyId}
+        aria-label={`${open ? 'Hide' : 'Show'} details for ${names}`}
         onClick={() => setOpen((o) => !o)}
       >
         <span className="fight-acc-corners">
@@ -50,18 +68,33 @@ function FightRow({ fight }: { fight: EventFight }) {
           <span className="fac-name blue">{fight.blue.name ?? 'TBD'}</span>
         </span>
         <span className="fight-acc-meta">
+          <span className="fac-details">
+            {fight.is_main_event ? 'Main event · ' : ''}{fightTag(fight)}
+          </span>
           <span className="fac-rating">
             {fmtRating(fight.red.mu)} · {fmtRating(fight.blue.mu)}
-          </span>
-          {fight.is_main_event && <span className="fac-tag main">Main Event</span>}
-          <span className={`fac-tag${fight.is_title || fight.is_interim_title ? ' title' : ''}`}>
-            {fightTag(fight)}
           </span>
           <Chevron open={open} />
         </span>
       </button>
       {open && (
-        <div className="fight-acc-body">
+        <div className="fight-acc-body" id={bodyId}>
+          {fight.prediction &&
+            (fight.prediction.speculative || fight.prediction.cross_division) && (
+              <div className="spec-note compact">
+                <strong>Speculative prediction.</strong>{' '}
+                {fight.prediction.cross_division
+                  ? 'The fighters are rated in different divisions, so this uses an extrapolated division adjustment. '
+                  : ''}
+                Treat this estimate with extra caution because the matchup data is thin or uncertain.
+              </div>
+            )}
+          {!fight.prediction && (
+            <div className="spec-note compact">
+              <strong>Incomplete prediction data.</strong>{' '}
+              At least one announced fighter has no current rating, so no win probability is shown.
+            </div>
+          )}
           <MatchupModule
             red={fight.red}
             blue={fight.blue}
@@ -77,29 +110,39 @@ function FightRow({ fight }: { fight: EventFight }) {
   )
 }
 
-// Level 1: a single event. Collapsed by default; expanding reveals its fights.
-function EventAccordion({ ev }: { ev: UpcomingEvent }) {
-  const [open, setOpen] = useState(false)
+// Level 1: the nearest event starts open; later events start collapsed.
+function EventAccordion({ ev, defaultOpen }: { ev: UpcomingEvent; defaultOpen: boolean }) {
+  const [open, setOpen] = useState(defaultOpen)
   const loc = [ev.venue, ev.location].filter(Boolean).join(' · ')
+  const date = eventDateParts(ev.date)
+  const bodyId = `event-${ev.id}-fights`
   return (
     <div className={`event-acc${open ? ' open' : ''}`}>
       <button
         type="button"
         className="event-acc-head"
         aria-expanded={open}
+        aria-controls={bodyId}
         onClick={() => setOpen((o) => !o)}
       >
+        <span className="event-date" aria-label={fmtDate(ev.date)}>
+          <span className="event-date-month">{date.month}</span>
+          <span className="event-date-day">{date.day}</span>
+          <span className="event-date-year">{date.year}</span>
+        </span>
         <span className="event-acc-title">
           <span className="event-name">{ev.name}</span>
           {loc && <span className="event-loc">{loc}</span>}
         </span>
         <span className="event-acc-right">
-          <span className="event-date">{fmtDate(ev.date)}</span>
+          <span className="event-disclosure-label">
+            {open ? 'Hide fights' : 'View fights'}
+          </span>
           <Chevron open={open} />
         </span>
       </button>
       {open && (
-        <div className="event-acc-body">
+        <div className="event-acc-body" id={bodyId}>
           {ev.fights.length === 0 ? (
             <div className="empty-note">No fights announced yet.</div>
           ) : (
@@ -125,16 +168,31 @@ export default function EventsPage() {
   if (!data) return <div className="loading">Loading events…</div>
 
   return (
-    <div className="page">
+    <div className="page events-page">
       <h1 className="page-title">
         Upcoming <span className="accent">Events</span>
       </h1>
+      <div className="freshness-note">
+        <strong>Data freshness.</strong> Upcoming cards last synced{' '}
+        {fmtDate(data.data_freshness.upcoming_events_synced_at)}; completed results
+        run through {fmtDate(data.data_freshness.latest_completed_event_date)}; ratings
+        calculated as of {fmtDate(data.data_freshness.ratings_as_of)}.
+        <span className="model-note">
+          Production model fitted {fmtDate(data.data_freshness.model_generated_at)}.{' '}
+          Predictions use the order-invariant website predictor (60.1% historical
+          walk-forward accuracy), not the 60.3% corner-aware evaluator; neither is
+          a guarantee of future results.
+        </span>
+      </div>
       {data.events.length === 0 && (
         <div className="empty-note">No upcoming events.</div>
       )}
-      {data.events.map((ev) => (
-        <EventAccordion ev={ev} key={ev.id} />
+      {data.events.map((ev, index) => (
+        <EventAccordion ev={ev} defaultOpen={index === 0} key={ev.id} />
       ))}
+      <Link to="/methodology" className="events-method-link">
+        How ratings work <span aria-hidden="true">→</span>
+      </Link>
     </div>
   )
 }

@@ -12,7 +12,7 @@ from typing import Any
 from fastapi import APIRouter, Depends
 
 from api.deps import db
-from api.serialize import build_comparison, stakes_for_fight
+from api.serialize import build_comparison, data_freshness, stakes_for_fight
 
 router = APIRouter()
 
@@ -81,4 +81,9 @@ def upcoming_events(conn=Depends(db)) -> dict[str, Any]:
             "fights": card,
         })
 
-    return {"events": out_events}
+    freshness = data_freshness(conn)
+    sync_row = conn.execute(
+        "SELECT last_run FROM sync_state WHERE source = 'ufc.com-events'"
+    ).fetchone()
+    freshness["upcoming_events_synced_at"] = sync_row["last_run"] if sync_row else None
+    return {"data_freshness": freshness, "events": out_events}

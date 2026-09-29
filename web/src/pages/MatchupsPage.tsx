@@ -88,6 +88,11 @@ export default function MatchupsPage() {
       <h1 className="page-title">
         Fighter <span className="accent">Matchups</span>
       </h1>
+      <div className="freshness-note">
+        Website probabilities use the order-invariant predictor (60.1% historical
+        walk-forward accuracy), not the 60.3% corner-aware evaluator. Historical
+        performance does not guarantee future results.
+      </div>
 
       <div className="matchup-pickers">
         <FighterSearchSelect
