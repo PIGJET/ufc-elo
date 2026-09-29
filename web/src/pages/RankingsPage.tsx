@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Division, RankedFighter, RankingsResponse } from '../api/types'
 import { getRankings, getRankingsElo } from '../api/client'
 import { fmtDate } from '../api/format'
@@ -74,23 +75,28 @@ export default function RankingsPage() {
         <h1 className="page-title">
           UFC <span className="accent">Rankings</span>
         </h1>
-        <div className="rank-toggle" role="group" aria-label="Ranking source">
-          <button
-            type="button"
-            className={`rank-toggle-btn${mode === 'official' ? ' active' : ''}`}
-            aria-pressed={mode === 'official'}
-            onClick={() => setMode('official')}
-          >
-            Official
-          </button>
-          <button
-            type="button"
-            className={`rank-toggle-btn${mode === 'elo' ? ' active' : ''}`}
-            aria-pressed={mode === 'elo'}
-            onClick={() => setMode('elo')}
-          >
-            Elo
-          </button>
+        <div className="rank-controls">
+          <div className="rank-toggle" role="group" aria-label="Ranking source">
+            <button
+              type="button"
+              className={`rank-toggle-btn${mode === 'official' ? ' active' : ''}`}
+              aria-pressed={mode === 'official'}
+              onClick={() => setMode('official')}
+            >
+              Official
+            </button>
+            <button
+              type="button"
+              className={`rank-toggle-btn${mode === 'elo' ? ' active' : ''}`}
+              aria-pressed={mode === 'elo'}
+              onClick={() => setMode('elo')}
+            >
+              Elo
+            </button>
+          </div>
+          <Link to="/methodology" className="method-link">
+            How ratings work <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </div>
 

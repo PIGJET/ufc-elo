@@ -6,6 +6,7 @@ const RankingsPage = lazy(() => import('./pages/RankingsPage'))
 const EventsPage = lazy(() => import('./pages/EventsPage'))
 const MatchupsPage = lazy(() => import('./pages/MatchupsPage'))
 const FighterProfilePage = lazy(() => import('./pages/FighterProfilePage'))
+const MethodologyPage = lazy(() => import('./pages/MethodologyPage'))
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/matchups" element={<MatchupsPage />} />
           <Route path="/fighter/:id" element={<FighterProfilePage />} />
+          <Route path="/methodology" element={<MethodologyPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
