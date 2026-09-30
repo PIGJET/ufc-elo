@@ -15,6 +15,14 @@ An independent UFC analytics website with division-aware Glicko-2 ratings, fight
 
 ![UFC Elo rankings dashboard showing division rankings and fighter ratings](docs/screenshots/after/rankings-desktop.png)
 
+More views: [Elo rankings](docs/screenshots/after/rankings-elo-desktop.png) · [Expanded fight and prediction](docs/screenshots/after/fight-expanded-desktop.png) · [Mobile events](docs/screenshots/after/events-phone-390.png)
+
+## Project highlights
+
+- **Full-stack product:** A React/TypeScript interface and FastAPI service sit on a SQLite data snapshot, with ingestion provenance recorded for conflicting source values. [Explore the project map](#project-map).
+- **Evaluated prediction model:** The website's order-invariant predictor achieved 60.1% accuracy in the documented walk-forward evaluation of 6,616 historical fights. The [model evaluation](#model-evaluation) distinguishes it from the separate corner-aware variant and explains the limits of those results.
+- **Reproducible first run:** The committed snapshot lets visitors [run the site locally](#run-locally) without scraping data or obtaining an odds API key; CI checks the backend, frontend, and combined deployment.
+
 ## Explore the sport
 
 | Feature | What you can explore |
