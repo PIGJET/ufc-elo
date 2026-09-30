@@ -1,6 +1,6 @@
-# UFC Elo Rating & Matchup Predictor — Approved Plan (v2)
+# UFC Elo Rating & Matchup Predictor — Design Specification
 
-This is the approved build plan. All implementation work must conform to it.
+This document records the original design decisions. For current behavior, see the code and the linked evaluation reports.
 Repo layout: `data/` (scrapers + ingestion + SQLite DB), `elo/` (rating engine),
 `api/` (FastAPI), `web/` (React frontend), `docs/` (this plan + reports).
 
@@ -131,5 +131,3 @@ fight card, fight history).
 2. Rating engine + calibration + backtest harness
 3. API
 4. Frontend
-
-Check in with the user after each phase.
