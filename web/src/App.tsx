@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import TopNav from './components/TopNav'
 
 const RankingsPage = lazy(() => import('./pages/RankingsPage'))
@@ -11,6 +12,7 @@ const MethodologyPage = lazy(() => import('./pages/MethodologyPage'))
 export default function App() {
   return (
     <BrowserRouter>
+      <Analytics />
       <TopNav />
       <Suspense fallback={<div className="loading">Loading…</div>}>
         <Routes>

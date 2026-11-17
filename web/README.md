@@ -23,3 +23,13 @@ npm run build
 
 The UI must handle missing images, debutants without ratings, unavailable odds,
 and speculative cross-division predictions without failing the page.
+
+## Visitor analytics
+
+Vercel Web Analytics is mounted once in `src/App.tsx` using
+`@vercel/analytics/react`. It tracks page views across the client-side routes.
+Enable **Web Analytics** for the UFC Elo project in the Vercel dashboard, then
+deploy the reviewed change. Visitor and page-view counts appear under
+**Analytics** after visitors load the deployed site; earlier visits are not
+recovered. No custom events or API keys are required. Local development uses
+the SDK's development mode rather than reporting production visits.
