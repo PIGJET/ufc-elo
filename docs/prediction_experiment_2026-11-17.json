@@ -1,0 +1,96 @@
+{
+  "reproduction": {
+    "existing_corner_backtest": {
+      "n": 6718,
+      "accuracy": 0.6027091396248884,
+      "log_loss": 0.6591884416617568,
+      "brier": 0.23309985279636442
+    },
+    "standard_elo": {
+      "n": 6718,
+      "accuracy": 0.5574575766597202,
+      "log_loss": 0.6846501510800764,
+      "brier": 0.2457913847610272
+    },
+    "always_red_accuracy": 0.5748734742482882
+  },
+  "development": {
+    "base": {
+      "n": 2038,
+      "accuracy": 0.6256133464180569,
+      "log_loss": 0.6489667215183379,
+      "brier": 0.22872885587509564
+    },
+    "recent_boosting": {
+      "n": 2038,
+      "accuracy": 0.6221786064769381,
+      "log_loss": 0.6481557342958227,
+      "brier": 0.22831259077818955
+    },
+    "recent_logistic": {
+      "n": 2038,
+      "accuracy": 0.6310107948969578,
+      "log_loss": 0.6404254379098832,
+      "brier": 0.224770302429661
+    }
+  },
+  "selected": "recent_logistic",
+  "database_sha256": "523bdbaa978f28de15808df981741d987a566d3a54e9ac71f23005dc9c014288",
+  "holdout_2026": {
+    "base": {
+      "matchup": {
+        "n": 501,
+        "accuracy": 0.6147704590818364,
+        "log_loss": 0.6506459168015533,
+        "brier": 0.2289756706956131
+      },
+      "corner": {
+        "n": 501,
+        "accuracy": 0.6207584830339321,
+        "log_loss": 0.6575275391265848,
+        "brier": 0.2312095807850446
+      }
+    },
+    "recent_logistic": {
+      "matchup": {
+        "n": 501,
+        "accuracy": 0.6367265469061876,
+        "log_loss": 0.6401940409847432,
+        "brier": 0.2244066660413206
+      },
+      "corner": {
+        "n": 501,
+        "accuracy": 0.6686626746506986,
+        "log_loss": 0.6468551860790595,
+        "brier": 0.22616195472698283
+      }
+    },
+    "legacy_features_reference": {
+      "matchup": {
+        "n": 501,
+        "accuracy": 0.6167664670658682,
+        "log_loss": 0.6518302913676548,
+        "brier": 0.22956838818232284
+      },
+      "corner": {
+        "n": 501,
+        "accuracy": 0.6127744510978044,
+        "log_loss": 0.6584068687066524,
+        "brier": 0.23167902790564826
+      }
+    }
+  },
+  "accuracy_gain_95pct_event_bootstrap": [
+    -0.00798443113772455,
+    0.05273695495963795
+  ],
+  "holdout_end": "2026-11-14",
+  "holdout_event_dates": 40,
+  "caveats": [
+    "Retrospective temporal evaluation, not a prospective untouched trial: 2026 history was previously examined in this project.",
+    "Shared current physical-attribute snapshots and previously fitted division offsets/configuration remain; this is not a complete point-in-time data audit.",
+    "Experimental comparison disables full-career style tags and uses fixed imputation constants for both arms.",
+    "Recent statistics use strictly earlier dates, including draws and no contests in performance history.",
+    "No betting-odds features. No production weights or database modified. Selection uses 2022-2025 matchup log loss only."
+  ]
+}

@@ -36,16 +36,34 @@ Explore the [rating engine](elo/engine.py), [configuration](elo/config.py), and 
 
 ## Model evaluation
 
-The committed [backtest report](docs/backtest_report.md), refreshed September 23, 2026, describes walk-forward evaluation on **6,616 fights from 2013 onward**, refitting each year using earlier fights. It reports two distinct prediction variants:
+The November 17 refresh evaluated **6,718 decisive fights from 2013 onward**, refitting the classifier each year using earlier fights and updating ratings chronologically. The [experiment report](docs/prediction_experiment_2026-11-17.md) records the refreshed scores and evaluation limitations:
 
 | Evaluation variant | Log loss | Accuracy |
 | --- | ---: | ---: |
-| Coin-flip baseline | 0.6931 | 50.0% |
-| Vanilla Elo baseline | 0.6846 | 55.8% |
-| Corner-aware prediction model | 0.6588 | 60.3% |
-| Order-invariant predictor used by the website | 0.6637 | 60.1% |
+| Vanilla Elo baseline | 0.68465 | 55.75% |
+| Existing corner-aware prediction recipe | 0.65919 | 60.27% |
 
-These are historical results reported in the repository, not guarantees of future performance. The betting-market baseline has not been evaluated because the documented odds table is empty. See the [backtest report](docs/backtest_report.md) for methodology and calibration, and the [optimization report](docs/optimization_report.md) for cross-division assumptions and limitations.
+Always selecting the red corner scores 57.49% on the same sample. These are historical recipe backtests, not guarantees of future performance or measurements of today's persisted weights against unseen fights. The earlier [September backtest report](docs/backtest_report.md) separately reports 60.1% for the website's order-invariant predictor on 6,616 fights. The betting-market baseline has not been evaluated; see the [optimization report](docs/optimization_report.md) for cross-division assumptions.
+
+### Recent-performance experiment
+
+Adding pre-fight striking, takedown, control, recent-results, and opponent-strength features produced **63.7% matchup accuracy on 501 fights from 2026**. Candidate selection used annual 2022–2025 folds before evaluating 2026:
+
+| Order-invariant matchup recipe | Correct picks | Accuracy | Log loss | Brier |
+| --- | ---: | ---: | ---: | ---: |
+| Experimental baseline | 308 / 501 | 61.48% | 0.65065 | 0.22898 |
+| Recent-performance logistic model | **319 / 501** | **63.67%** | **0.64019** | **0.22441** |
+
+That is **11 additional correct picks**, **+2.20 percentage points**, and **1.61% lower log loss** on the same test sample. Both experimental arms disable current career style labels and use fixed imputation constants to reduce historical leakage concerns. Rolling performance inputs exclude the current fight and all same-day bouts.
+
+**Experimental; not deployed.** The event-bootstrap 95% interval for the accuracy gain is -0.80 to +5.27 percentage points, so the improvement is not statistically conclusive. This is a retrospective temporal test with remaining point-in-time data limitations, not a prospective trial. The 63.7% figure applies to this 2026 sample, not the full historical backtest. See the [full methodology and caveats](docs/prediction_experiment_2026-11-17.md).
+
+Reproduce without changing the production database or model:
+
+```sh
+python -m elo.experiment_recent --output-dir work/prediction-experiment
+pytest tests/test_recent_experiment.py elo/tests -q
+```
 
 ![Walk-forward calibration plot documented in the backtest report](docs/calibration.png)
 
