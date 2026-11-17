@@ -1,0 +1,30 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "ufc-elo": {
+      "root": ".",
+      "framework": "fastapi",
+      "entrypoint": "api.main:app",
+      "functions": {
+        "api/main.py": {
+          "includeFiles": "{data/ufc.db,elo/division_offsets.json,elo/prediction_model.json}",
+          "excludeFiles": "{web/**,docs/**,tests/**}"
+        }
+      }
+    },
+    "web": {
+      "root": "web",
+      "framework": "vite",
+      "rewrites": [
+        { "source": "/events", "destination": "/index.html" },
+        { "source": "/matchups", "destination": "/index.html" },
+        { "source": "/methodology", "destination": "/index.html" },
+        { "source": "/fighter/:id", "destination": "/index.html" }
+      ]
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": { "service": "ufc-elo" } },
+    { "source": "/(.*)", "destination": { "service": "web" } }
+  ]
+}
